@@ -1,0 +1,293 @@
+#pragma version 2
+//Fund Start Date unixtimestamp
+//Fund End Date unixtimestamp
+//Fund Goal
+//Fund Amount - total
+//Escrow Address
+//Creator Address
+
+// check if the app is being created
+// if so save creator
+int 0
+txn ApplicationID
+==
+bz not_creation
+byte "Creator"
+txn Sender
+app_global_put
+//4 args on creation
+// transaction will fail
+// if 4 args are not passed during creation
+txn NumAppArgs
+int 4
+==
+bz failed
+byte "StartDate"
+txna ApplicationArgs 0
+btoi
+app_global_put
+byte "EndDate"
+txna ApplicationArgs 1
+btoi
+app_global_put
+byte "Goal"
+txna ApplicationArgs 2
+btoi
+app_global_put
+byte "Receiver"
+txna ApplicationArgs 3
+app_global_put
+byte "Total"
+int 0
+app_global_put
+int 1
+return
+not_creation:
+// check if this is deletion ---
+int DeleteApplication
+txn OnCompletion
+==
+bz not_deletion
+byte "Creator"
+app_global_get
+txn Sender
+==
+bz failed
+int 1
+return
+not_deletion:
+//---
+// check if this is update ---
+int UpdateApplication
+txn OnCompletion
+==
+bz not_update
+byte "Creator"
+app_global_get
+txn Sender
+==
+txn NumAppArgs
+int 1
+==
+&&
+bz failed
+//this parameter should be addr:
+byte "Escrow"
+txna ApplicationArgs 0
+app_global_put
+int 1
+return
+not_update:
+//---
+// check for closeout
+int CloseOut
+txn OnCompletion
+==
+bnz close_out
+int 0
+txn NumAppArgs
+==
+bz check_parms 
+// Verify someone is 
+// not just opting in
+int OptIn
+txn OnCompletion
+==
+bz failed
+int 1
+return
+check_parms:
+// donate
+txna ApplicationArgs 0
+byte "donate"
+==
+bnz donate
+// reclaim
+txna ApplicationArgs 0
+byte "reclaim" 
+==
+bnz reclaim
+txna ApplicationArgs 0
+byte "claim" 
+==
+bnz claim
+b failed
+
+//check for claim
+
+donate:
+global LatestTimestamp
+byte "StartDate"
+app_global_get
+>=
+global LatestTimestamp
+byte "EndDate"
+app_global_get
+<=
+&&
+bz failed
+//check if grouped txn spending vote token
+// two transactions
+global GroupSize
+int 2
+==
+// second tx is an payment
+gtxn 1 TypeEnum
+int 1
+==
+&&
+bz failed
+// creator receiving the vote token
+byte "Escrow"
+app_global_get
+gtxn 1 Receiver
+==
+bz failed
+byte "Total"
+app_global_get
+// increment fund total - fee
+gtxn 1 Amount
++
+store 1
+byte "Total"
+load 1
+app_global_put
+//increment or set giving amount
+int 0 //sender
+txn ApplicationID
+byte "MyAmountGiven"
+app_local_get_ex
+bz new_giver
+gtxn 1 Amount
++
+store 3
+int 0 //sender
+byte "MyAmountGiven"
+load 3
+app_local_put
+b finished
+new_giver:
+int 0 //sender
+byte "MyAmountGiven"
+gtxn 1 Amount
+app_local_put
+b finished
+
+
+// ie donation reached goal 
+// before end date
+claim:
+global GroupSize
+int 2
+==
+bz failed
+gtxn 1 Receiver
+byte "Receiver"
+app_global_get
+==
+gtxn 1 Sender
+byte "Escrow"
+app_global_get
+==
+&&
+gtxn 1 CloseRemainderTo 
+byte "Receiver"
+app_global_get
+==
+&&
+global LatestTimestamp
+byte "EndDate"
+app_global_get
+>
+&&
+bz failed
+byte "Total"
+app_global_get
+byte "Goal"
+app_global_get
+>=
+bz failed
+b finished
+//dont check amount because
+//escrow account may receiver 
+//more than the goal
+//Could check for total vs tx1 amount
+
+//Fund did not meet total
+//Allow ppl to reclaim funds
+//may be an issue when the last
+//person relcaims because of min balance
+//without a closeto
+// only 1 relcaim tx is allowed per account
+reclaim:
+global GroupSize
+int 2
+==
+bz failed
+gtxn 1 Receiver
+gtxn 0 Sender
+==
+gtxn 1 Sender
+byte "Escrow"
+app_global_get
+==
+&&
+global LatestTimestamp
+byte "EndDate"
+app_global_get
+>
+&&
+byte "Total"
+app_global_get
+byte "Goal"
+app_global_get
+<
+&&
+gtxn 1 Amount
+gtxn 1 Fee
+-
+int 0
+byte "MyAmountGiven"
+app_local_get
+<=
+&&
+bz failed
+//check the escrow account total
+//--app-account for the escrow
+// needs to pass the address
+// of the escrow
+gtxn 1 Fee
+gtxn 1 Amount
++
+int 1
+balance
+==
+gtxn 1 CloseRemainderTo 
+global ZeroAddress
+==
+||
+bz failed
+//decrement the given amount
+int 0
+byte "MyAmountGiven"
+app_local_get
+gtxn 1 Amount
+-
+gtxn 1 Fee
+-
+store 5
+int 0
+byte "MyAmountGiven"
+load 5
+app_local_put
+b finished
+//call if this is a closeout op
+close_out:
+int 1
+return
+failed:
+int 0
+return
+finished:
+int 1
+return

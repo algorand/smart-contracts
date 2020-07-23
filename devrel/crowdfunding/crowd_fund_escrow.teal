@@ -1,0 +1,21 @@
+#pragma version 2
+// deploy app first then get id
+// replace id in this teal to create
+// the escrow address
+// use goal app update to set the
+// escrow address
+global GroupSize
+int 2
+==
+gtxn 0 TypeEnum
+int 6
+==
+&&
+gtxn 0 ApplicationID
+int 1
+==
+&&
+gtxn 0 OnCompletion
+int NoOp
+==
+&&
