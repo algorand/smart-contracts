@@ -1,5 +1,4 @@
 #!/bin/bash
-
 date '+keyreg-teal-test start %Y%m%d_%H%M%S'
 
 set -e

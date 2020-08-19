@@ -1,10 +1,10 @@
 #pragma version 2
-//Fund Start Date unixtimestamp
-//Fund End Date unixtimestamp
-//Fund Goal
-//Fund Amount - total
-//Escrow Address
-//Creator Address
+// Fund Start Date unixtimestamp
+// Fund End Date unixtimestamp
+// Fund Goal
+// Fund Amount - total
+// Escrow Address
+// Creator Address
 
 // check if the app is being created
 // if so save creator
@@ -19,7 +19,7 @@ app_global_put
 // transaction will fail
 // if 4 args are not passed during creation
 txn NumAppArgs
-int 4
+int 5
 ==
 bz failed
 byte "StartDate"
@@ -40,18 +40,75 @@ app_global_put
 byte "Total"
 int 0
 app_global_put
+byte "FundCloseDate"
+txna ApplicationArgs 4
+btoi
+app_global_put
 int 1
 return
 not_creation:
-// check if this is deletion ---
+// check if this is deletion transaction
 int DeleteApplication
 txn OnCompletion
 ==
 bz not_deletion
+// To delete the app
+// The creator must empty the escrow
+// to the fund receiver if the escrow has funds
+// only the creator
+// can delete the app
 byte "Creator"
 app_global_get
 txn Sender
 ==
+// check that we are past fund close date
+global LatestTimestamp
+byte "FundCloseDate"
+app_global_get
+>=
+&&
+bz failed
+// if escrow balance is zero
+// let the app be deleted
+// escrow account must be passed
+// into the call as an argument
+int 0
+int 1
+balance
+==
+// if the balance is 0 allow the delete
+bnz finished
+// if the escrow is not empty then 
+// there must be need two transactions
+// in a group
+global GroupSize
+int 2
+==
+// second tx is an payment
+gtxn 1 TypeEnum
+int 1
+==
+&&
+// the second payment transaction should be
+// a close out transaction to receiver
+byte "Receiver"
+app_global_get
+gtxn 1 CloseRemainderTo
+==
+&&
+// the amount of the payment transaction 
+// should be 0
+gtxn 1 Amount
+int 0
+==
+&&
+// the sender of the payment transaction
+// should be the escrow account
+byte "Escrow"
+app_global_get
+gtxn 1 Sender
+==
+&&
 bz failed
 int 1
 return
@@ -62,16 +119,21 @@ int UpdateApplication
 txn OnCompletion
 ==
 bz not_update
+// verify that the creator is
+// making the call
 byte "Creator"
 app_global_get
 txn Sender
 ==
+// the call should pass the escrow 
+// address
 txn NumAppArgs
 int 1
 ==
 &&
 bz failed
-//this parameter should be addr:
+// store the address in global state
+// this parameter should be addr:
 byte "Escrow"
 txna ApplicationArgs 0
 app_global_put
@@ -84,6 +146,13 @@ int CloseOut
 txn OnCompletion
 ==
 bnz close_out
+// check if no params are
+// passed in, which should
+// only happen when someone just
+// wants to optin
+// note the code is written
+// to allow opting in and donating with
+// one call
 int 0
 txn NumAppArgs
 ==
@@ -107,15 +176,16 @@ txna ApplicationArgs 0
 byte "reclaim" 
 ==
 bnz reclaim
+// claim
 txna ApplicationArgs 0
 byte "claim" 
 ==
 bnz claim
 b failed
 
-//check for claim
-
 donate:
+// check dates to verify
+// in valid range
 global LatestTimestamp
 byte "StartDate"
 app_global_get
@@ -126,7 +196,7 @@ app_global_get
 <=
 &&
 bz failed
-//check if grouped txn spending vote token
+// check if grouped with
 // two transactions
 global GroupSize
 int 2
@@ -137,26 +207,33 @@ int 1
 ==
 &&
 bz failed
-// creator receiving the vote token
+// verify escrow is receiving 
+// second payment tx
 byte "Escrow"
 app_global_get
 gtxn 1 Receiver
 ==
 bz failed
+// increment the total 
+// funds raised so far
 byte "Total"
 app_global_get
-// increment fund total - fee
 gtxn 1 Amount
 +
 store 1
 byte "Total"
 load 1
 app_global_put
-//increment or set giving amount
+// increment or set giving amount
+// for the account that is donating
 int 0 //sender
 txn ApplicationID
 byte "MyAmountGiven"
 app_local_get_ex
+// check if a new giver
+// or existing giver
+// and store the value
+// in the givers local storage
 bz new_giver
 gtxn 1 Amount
 +
@@ -174,33 +251,46 @@ app_local_put
 b finished
 
 
-// ie donation reached goal 
-// before end date
+
 claim:
+// verify there are 2 transactions
+// in the group
 global GroupSize
 int 2
 ==
 bz failed
+// verify that the receiver 
+// of the payment transaction
+// is the address stored 
+// when the fund was created
 gtxn 1 Receiver
 byte "Receiver"
 app_global_get
 ==
+// verify the sender
+// of the payment transaction
+// is the escrow account
 gtxn 1 Sender
 byte "Escrow"
 app_global_get
 ==
 &&
+// verify that the CloseRemainderTo
+// attribute is set to the receiver
 gtxn 1 CloseRemainderTo 
 byte "Receiver"
 app_global_get
 ==
 &&
+// verify that the fund end date 
+// has passed
 global LatestTimestamp
 byte "EndDate"
 app_global_get
 >
 &&
 bz failed
+// verify that the goal was reached
 byte "Total"
 app_global_get
 byte "Goal"
@@ -220,32 +310,50 @@ b finished
 //without a closeto
 // only 1 relcaim tx is allowed per account
 reclaim:
+// verify there are 2 transactions
+// in the group
 global GroupSize
 int 2
 ==
 bz failed
+// verfiy that smart contract
+// caller is the payment
+// transction receiver
 gtxn 1 Receiver
 gtxn 0 Sender
 ==
+// Verify that payment
+// transaction is from the escrow
 gtxn 1 Sender
 byte "Escrow"
 app_global_get
 ==
 &&
+// verify that fund end date has passed
 global LatestTimestamp
 byte "EndDate"
 app_global_get
 >
 &&
+// verify the fund goal was
+// not met
 byte "Total"
 app_global_get
 byte "Goal"
 app_global_get
 <
 &&
+// because the escrow
+// has to pay the fee
+// the amount of the 
+// payment transaction
+// plus the fee should
+// be less than or equal to
+// the amount originally 
+// given
 gtxn 1 Amount
 gtxn 1 Fee
--
++
 int 0
 byte "MyAmountGiven"
 app_local_get
@@ -256,9 +364,14 @@ bz failed
 //--app-account for the escrow
 // needs to pass the address
 // of the escrow
+// check that this is the
+// last recoverd donation
+// if it is the closeremainderto
+// should be set
 gtxn 1 Fee
 gtxn 1 Amount
 +
+// the int 1 is the ref to escrow
 int 1
 balance
 ==
@@ -267,7 +380,8 @@ global ZeroAddress
 ==
 ||
 bz failed
-//decrement the given amount
+// decrement the given amount
+// of the sender
 int 0
 byte "MyAmountGiven"
 app_local_get

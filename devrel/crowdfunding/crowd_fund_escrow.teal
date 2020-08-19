@@ -4,18 +4,42 @@
 // the escrow address
 // use goal app update to set the
 // escrow address
+// This contract only spends out
+// it two transactions are grouped
+
 global GroupSize
 int 2
 ==
+// The first transaction must be 
+// an ApplicationCall (ie call stateful smart contract)
 gtxn 0 TypeEnum
 int 6
 ==
 &&
+// The specific App ID must be called
+// This should be changed after creation
 gtxn 0 ApplicationID
 int 1
 ==
 &&
+// The applicaiton call must either be
+// A general applicaiton call or a delete
+// call
 gtxn 0 OnCompletion
 int NoOp
+==
+int DeleteApplication
+gtxn 0 OnCompletion
+==
+||
+&&
+// verify neither transaction
+// contains a rekey
+gtxn 1 RekeyTo
+global ZeroAddress
+==
+&&
+gtxn 0 RekeyTo
+global ZeroAddress
 ==
 &&

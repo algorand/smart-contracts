@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 date '+keyreg-teal-test start %Y%m%d_%H%M%S'
 
 set -e
@@ -17,11 +18,10 @@ gcmd="../../goal -d ../test/Node"
 
 ACCOUNT=$(${gcmd} account list|awk '{ print $3 }'|head -n 1)
 
-${gcmd} app optin --app-id 1 --app-arg "str:donate" --from $ACCOUNT  --out=unsginedtransaction1.tx
-${gcmd} clerk send --from=$ACCOUNT --to="GDYDVW2MPBYN3TMQI6O353B6VZGO77SA42DBIT2RXTH23OEO6QKF5G5R4U" --amount=500000 --out=unsginedtransaction2.tx
-#${gcmd} clerk send --from=$ACCOUNT --to="YOE6C22GHCTKAN3HU4SE5PGIPN5UKXAJTXCQUPJ3KKF5HOAH646MKKCPDA" --amount=500000 --out=unsginedtransaction2.tx
+${gcmd} app optin  --app-id 1 --from $ACCOUNT 
 
-
+${gcmd} app call --app-id 1 --app-arg "str:donate" --from=$ACCOUNT  --out=unsginedtransaction1.tx
+${gcmd} clerk send --from=$ACCOUNT --to="F4HJHVIPILZN3BISEVKXL4NSASZB4LRB25H4WCSEENSPCJ5DYW6CKUVZOA" --amount=500000 --out=unsginedtransaction2.tx
 cat unsginedtransaction1.tx unsginedtransaction2.tx > combinedtransactions.tx
 ${gcmd} clerk group -i combinedtransactions.tx -o groupedtransactions.tx 
 ${gcmd} clerk sign -i groupedtransactions.tx -o signout.tx

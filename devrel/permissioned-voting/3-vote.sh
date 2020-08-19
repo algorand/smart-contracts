@@ -9,7 +9,6 @@ export SHELLOPTS
 
 WALLET=$1
 
-
 # Directory of this bash program
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
@@ -23,8 +22,8 @@ ${gcmd} asset send --from=$ACCOUNT --to=$ACCOUNT  --creator ${ACCOUNT} --assetid
 
 cat unsginedtransaction1.tx unsginedtransaction2.tx > combinedtransactions.tx
 ${gcmd} clerk group -i combinedtransactions.tx -o groupedtransactions.tx 
-${gcmd} clerk sign -i groupedtransactions.tx -o signout.tx
-${gcmd} clerk rawsend -f signout.tx
+${gcmd} clerk sign -i groupedtransactions.tx -o signouta.tx
+${gcmd} clerk rawsend -f signouta.tx
 ${gcmd} app read --app-id 1 --guess-format --global --from $ACCOUNT
 
 

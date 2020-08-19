@@ -8,13 +8,12 @@ bz not_creation
 byte "Creator"
 txn Sender
 app_global_put
-//4 args on creation
-// transaction will fail
-// if 4 args are not passed during creation
+//4 args must be used on creation
 txn NumAppArgs
 int 4
 ==
 bz failed
+//set round ranges
 byte "RegBegin"
 txna ApplicationArgs 0
 btoi
@@ -80,6 +79,7 @@ bnz vote
 int 0
 return
 vote:
+//verify in voting rounds
 global Round
 byte "VoteBegin"
 app_global_get
@@ -90,25 +90,28 @@ app_global_get
 <=
 &&
 bz failed
-//Check that the account has opted in
-//account offset (0 == sender, 1 == txn.accounts[0], 2 == txn.accounts[1], etc..)
+// Check that the account has opted in
+// account offset (0 == sender, 
+// 1 == txn.accounts[0], 2 == txn.accounts[1], etc..)
 int 0 
 txn ApplicationID
 app_opted_in
 bz failed
-// check if they have vote token
-// assuming assetid 2
-// returns frozen an asset bal
-// pop frozen
+// check if they have the vote token
+// assuming assetid 2. This should
+// be changed to appropriate asset id
+// sender
 int 0
-// should pass appid in as parameter
+// hard-coded assetid
 int 2
+// returns frozen an asset balance
+// pop frozen
 asset_holding_get AssetBalance
 pop
+// does voter have at least 1 vote token
 int 1
 >=
 bz failed
-//check if grouped txn spending vote token
 // two transactions
 global GroupSize
 int 2
@@ -125,9 +128,9 @@ app_global_get
 gtxn 1 AssetReceiver
 ==
 bz failed
-// vote token asset id
+// verify the proper token is being spent
 gtxn 1 XferAsset
-//
+// hard coded and should be changed
 int 2
 ==
 bz failed
@@ -141,15 +144,22 @@ bz failed
 int 0 //sender
 txn ApplicationID
 byte "voted"
-// 3 pars get popped
-//two values pushed 0/1 and value
-//0/1 should be on top of stack
 app_local_get_ex 
-// Value must not exist
-// else user voted
+// if voted skip incrementing count
 bnz voted
 pop
-//read existing vote candiate
+// can only vote for candidatea
+// or candidateb
+txna ApplicationArgs 1
+byte "candidatea" 
+==
+txna ApplicationArgs 1
+byte "candidateb" 
+==
+||
+bz failed
+// read existing vote candiate
+// in global state and increment vote
 int 0
 txna ApplicationArgs 1
 app_global_get_ex
@@ -163,6 +173,7 @@ store 1
 txna ApplicationArgs 1
 load 1
 app_global_put
+// store the voters choice in local state
 int 0 //sender
 byte "voted"
 txna ApplicationArgs 1
