@@ -1,0 +1,209 @@
+#pragma version 2
+// check if the app is being created
+// if so save creator
+int 0
+txn ApplicationID
+==
+bz not_creation
+byte "Creator"
+txn Sender
+app_global_put
+// 4 args on creation
+// transaction will fail
+// if 4 args are not passed during creation
+txn NumAppArgs
+int 4
+==
+bz failed
+byte "RegBegin"
+txna ApplicationArgs 0
+btoi
+app_global_put
+byte "RegEnd"
+txna ApplicationArgs 1
+btoi
+app_global_put
+byte "VoteBegin"
+txna ApplicationArgs 2
+btoi
+app_global_put
+byte "VoteEnd"
+txna ApplicationArgs 3
+btoi
+app_global_put
+int 1
+return
+not_creation:
+// check if this is deletion ---
+int DeleteApplication
+txn OnCompletion
+==
+bz not_deletion
+byte "Creator"
+app_global_get
+txn Sender
+==
+bz failed
+int 1
+return
+not_deletion:
+//---
+// check if this is update ---
+int UpdateApplication
+txn OnCompletion
+==
+bz not_update
+byte "Creator"
+app_global_get
+txn Sender
+==
+bz failed
+int 1
+return
+not_update:
+//---
+// check for closeout
+int CloseOut
+txn OnCompletion
+==
+bnz close_out
+// register
+txn OnCompletion
+int OptIn
+==
+bnz register
+// vote
+txna ApplicationArgs 0
+byte "vote" 
+==
+bnz vote
+int 0
+return
+vote:
+global Round
+byte "VoteBegin"
+app_global_get
+>=
+global Round
+byte "VoteEnd"
+app_global_get
+<=
+&&
+bz failed
+//Check that the account has opted in
+//account offset (0 == sender, 1 == txn.accounts[0], 2 == txn.accounts[1], etc..)
+int 0 
+txn ApplicationID
+app_opted_in
+bz failed
+//check local to see if they have voted
+int 0 //sender
+txn ApplicationID
+byte "voted"
+// 3 pars get popped
+//two values pushed 0/1 and value
+//0/1 should be on top of stack
+app_local_get_ex 
+// Value must not exist
+// else user already voted
+bnz voted
+//read existing vote candidate
+//i think i need a pop here
+pop
+txna ApplicationArgs 1
+byte "candidatea" 
+==
+txna ApplicationArgs 1
+byte "candidateb" 
+==
+||
+bz failed
+int 0
+txna ApplicationArgs 1
+app_global_get_ex
+bnz increment_existing
+pop
+int 0
+increment_existing:
+int 1
++
+store 1
+txna ApplicationArgs 1
+load 1
+app_global_put
+int 0 //sender
+byte "voted"
+txna ApplicationArgs 1
+app_local_put
+int 1
+return
+voted:
+pop
+int 0
+return
+register:
+global Round
+byte "RegBegin"
+app_global_get
+>=
+global Round
+byte "RegEnd"
+app_global_get
+<=
+&&
+bz failed
+int 1
+return
+// call if this is a closeout op
+close_out:
+// see if the vote is over
+global Round
+byte "VoteEnd"
+app_global_get
+>
+bnz finished
+// check local to see if they have voted
+int 0 //sender
+txn ApplicationID
+byte "voted"
+// 3 pars get popped
+// two values pushed 0/1 and value
+// 0/1 should be on top of stack
+app_local_get_ex 
+// Value must not exist
+// else user voted
+bnz voted_c
+pop
+int 1
+return
+voted_c:
+// vote candidate is at the top of the stack
+// read existing vote candidate
+store 1
+int 0 //current smart contract
+load 1
+app_global_get_ex
+store 3
+store 4
+load 3
+bnz decrement_existing
+// did not find candidate
+int 1
+return
+// decrement the vote
+decrement_existing:
+load 4
+int 1
+-
+store 2
+load 1
+load 2
+app_global_put
+int 1
+return
+failed:
+int 0
+return
+finished:
+int 1
+return

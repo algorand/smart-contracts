@@ -1,0 +1,39 @@
+#pragma version 2
+//check to see if vote is over
+global Round
+byte "VoteEnd"
+app_global_get
+>
+bnz finished
+int 0 //sender
+txn ApplicationID
+byte "voted"
+app_local_get_ex 
+bnz voted
+pop
+int 1
+return
+voted:
+store 1
+int 0
+load 1
+app_global_get_ex
+store 3
+store 4
+load 3
+bnz decrement_existing
+int 1
+return
+decrement_existing:
+load 4
+int 1
+-
+store 2
+load 1
+load 2
+app_global_put
+int 1
+return
+finished:
+int 1
+return
