@@ -1,0 +1,70 @@
+<html>
+   <head>
+      <meta charset="utf-8">
+      <script src="algosdk.min.js"></script>
+      <link rel="stylesheet" type="text/css" href="dex.css">
+   </head>
+   <body>
+      <p style="text-align: center;">&nbsp;</p>
+      <table class="blueTable" style="border-collapse: collapse; width: 100%;" border="1">
+         <tbody>
+            <tr style="height: 21px;">
+               <td style="width: 33.3333%; height: 21px;">
+                  <p><span style="color: #808080;"><strong>Execute Order</strong></span></p>
+               </td>
+               <td style="width: 33.3333%; height: 21px;"><span style="color: #808080;"><strong>Current Open Orders</strong></span></td>
+               <td style="width: 33.3333%; height: 21px;"><span style="color: #808080;"><strong>Open Order</strong></span></td>
+            </tr>
+            <tr style="height: 285px;">
+               <td style="width: 33.3333%; height: 285px;">&nbsp;</td>
+               <td style="width: 33.3333%; height: 285px; text-align: center;">
+                  <div>
+                     <label>N-D-Max-Min-Asset</label>
+                     <form>
+                        <select id="ta" size="20" width='250px'>
+                        </select>
+                     </form>
+                     <label id='listingaccount' class="orders">Select Order</label>
+                  </div>
+               </td>
+               <td style="width: 33.3333%; height: 285px;">
+                  <div>
+                     <div><span style="color: #808080;"><strong>N units of the asset per D microAlgos</strong></span></div>
+                  </div>
+               </td>
+            </tr>
+            <tr style="height: 21px;">
+               <td style="width: 33.3333%; height: 21px;"><span style="color: #808080;"><strong>Spending Asset ID: </strong></span><input id="buyer_assetid" type="number" /></td>
+               <td style="width: 33.3333%; height: 21px;"><span style="color: #808080;"><strong>Asset ID:</strong></span></td>
+               <td style="width: 33.3333%; height: 21px;"><input id="assetid" type="number" /></td>
+            </tr>
+            <tr style="height: 21px;">
+               <td style="width: 33.3333%; height: 21px;"><strong>Asset Amount: </strong></span><input id="buyer_assets" type="number" /></td>
+               <td style="width: 33.3333%; height: 21px;"><span style="color: #808080;"><strong>Min MicroAlgos:</strong></span></td>
+               <td style="width: 33.3333%; height: 21px;"><input id="min" type="number" /></td>
+            </tr>
+            <tr style="height: 21px;">
+               <td style="width: 33.3333%; height: 21px;"><strong>Receive MicroAlgo: </strong></span><input id="buyer_algos" type="number" /></td>
+               <td style="width: 33.3333%; height: 21px;"><span style="color: #808080;"><strong>Max MicroAlgos:</strong></span></td>
+               <td style="width: 33.3333%; height: 21px;"><input id="max" type="number" /></td>
+            </tr>
+            <tr style="height: 21px;">
+               <td style="width: 33.3333%; height: 21px;">&nbsp;</td>
+               <td style="width: 33.3333%; height: 21px;"><span style="color: #808080;"><strong>N:</strong></span></td>
+               <td style="width: 33.3333%; height: 21px;"><input id="N" type="number" /></td>
+            </tr>
+            <tr style="height: 21px;">
+               <td style="width: 33.3333%; height: 21px;">&nbsp;</td>
+               <td style="width: 33.3333%; height: 21px;"><span style="color: #808080;"><strong>D:</strong></span></td>
+               <td style="width: 33.3333%; height: 21px;"><input id="D" type="number" /></td>
+            </tr>
+            <tr>
+               <td style="width: 33.3333%;"><button id="eo" class="myButton" type="button">Execute Order </button><button id="ro" class="myButton" type="button">Refresh Orders </button></td>
+               <td style="width: 33.3333%;"><button id="oi" class="myButton" type="button">Opt In to App </button><button id="oo" class="myButton" type="button">Opt Out of App </button></td>
+               <td style="width: 33.3333%;"><button id="po" class="myButton" type="button">Place Order </button><button id="co" class="myButton" type="button">Close Order </button></td>
+            </tr>
+         </tbody>
+      </table>
+   </body>
+   <script src="dex.js"></script>
+</html>
