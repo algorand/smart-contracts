@@ -1,0 +1,21 @@
+#pragma version 2
+int 0
+txn ApplicationID
+==
+bnz creation
+
+int 1 //first addtional app in app array
+byte "mastervalue"
+app_global_get_ex
+bz failed
+int 5000
+==
+bz failed
+int 1
+return
+failed:
+int 0
+return
+creation:
+int 1
+return

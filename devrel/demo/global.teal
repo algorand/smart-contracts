@@ -1,0 +1,15 @@
+#pragma version 2
+// read global state
+byte "counter"
+app_global_get
+
+// increment the value
+int 1
++
+store 1
+// update global state
+byte "counter"
+load 1
+app_global_put
+load 1
+return

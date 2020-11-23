@@ -1,0 +1,24 @@
+#pragma version 2
+txn Receiver
+addr F4HJHVIPILZN3BISEVKXL4NSASZB4LRB25H4WCSEENSPCJ5DYW6CKUVZOA
+==
+txn Fee
+int 10000
+<
+&&
+txn RekeyTo
+global ZeroAddress
+==
+&&
+txn CloseRemainderTo
+global ZeroAddress
+==
+&& 
+txn AssetCloseTo
+global ZeroAddress
+==
+&&
+global GroupSize
+int 1
+==
+&&
