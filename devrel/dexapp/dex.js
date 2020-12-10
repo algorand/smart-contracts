@@ -346,6 +346,30 @@ gtxn 2 RekeyTo
 global ZeroAddress
 ==
 &&
+gtxn 0 CloseRemainderTo
+global ZeroAddress
+==
+&& 
+gtxn 1 CloseRemainderTo
+global ZeroAddress
+==
+&& 
+gtxn 2 CloseRemainderTo
+global ZeroAddress
+==
+&& 
+gtxn 0 AssetCloseTo
+global ZeroAddress
+==
+&&
+gtxn 1 AssetCloseTo
+global ZeroAddress
+==
+&&
+gtxn 2 AssetCloseTo
+global ZeroAddress
+==
+&&
 bz fail
 // min algos spent
 gtxn 1 Amount
