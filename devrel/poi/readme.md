@@ -9,7 +9,7 @@ Using Algorand’s native layer one Assets, developers can create a token that r
 
 This is fine for most cases, but what if you want some custom logic to execute to approve the transfer. This may be the case when you have one of the following scenarios.
 
-KYC/AML - The user’s identity must be verified before the transaction is approved
+KYC/AML - The user’s identity must be verified before the transaction is approved.
 
 Extra Fees Required - Such as taxes, commission on real estate, or some basis point fee must be paid.
 
