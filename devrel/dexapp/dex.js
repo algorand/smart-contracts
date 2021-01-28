@@ -1,18 +1,24 @@
 (function() {
 
     // Setup a connection to Algod and the Indexer
-    const atoken = "yourtoken";
-    const aserver = "http://127.0.0.1";
-    const aport = 8080;
+    //const atoken = "f1dee49e36a82face92fdb21cd3d340a1b369925cd12f3ee7371378f1665b9b1";
+    //const aserver = "http://127.0.0.1";
+    //const aport = 8080;
+    const atoken = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    const aserver = "http://localhost";
+    const aport = 4001;
 
-    const indexer_server = "yourindexer";
-    const indexer_port = 443;
-    const indexer_token = "yourindexertoken";
+    //const indexer_server = "https://indexer-internal-testnet.aws.algodev.network";
+    //const indexer_port = 443;
+    //const indexer_token = "YddOUGbAjHLr1uPZtZwHOvMDmXvR1Zvw1f3Roj2PT1ufenXbNyIxIz0IeznrLbDsF";
+    const indexer_token = "";
+    const indexer_server = "http://localhost";
+    const indexer_port = 8980;
 
     //assetid is hard coded at the moment
-    let ASSETID = 12270668;
+    let ASSETID = 3;
     // This is the APPID returned after creating the stateful smart contract
-    let APPID = 12867764;
+    let APPID = 5; //also change in contract code below
 
     // Instantiate the indexer and algod client wrappers
     let indexerClient = new algosdk.Indexer(indexer_token, indexer_server, indexer_port);
@@ -323,7 +329,7 @@ int axfer
 // This should be changed after creation
 // This links this contract to the stateful contract
 gtxn 0 ApplicationID
-int 12867764 //stateful contract app id
+int 5 //stateful contract app id
 ==
 &&
 // The applicaiton call must be
@@ -525,30 +531,41 @@ return
     // list open orders
     if (ro) {
         ro.onclick = function() {
+            //clear ui order list
             ta.innerHTML = "";
             la.innerHTML = "Select Order";
 
             (async () => {
                 body.classList.add("waiting");
+                //rest api to search accounts opted into stateful smart contract
                 let accountInfo = await indexerClient.searchAccounts()
                     .applicationID(APPID).do();
                 console.log(accountInfo);
                 let accounts = accountInfo['accounts'];
                 let numAccounts = accounts.length;
+                //iterate every account
                 for (i = 0; i < numAccounts; i++) {
                     let add = accounts[i]['address'];
-
+                    // get local state values for any account with open order
                     let accountInfoResponse = await algodClient.accountInformation(add).do();
+                    // does the account have any local state
                     for (let i = 0; i < accountInfoResponse['apps-local-state'].length; i++) {
+                        // check if it has state for this stateful app
                         if (accountInfoResponse['apps-local-state'][i].id == APPID) {
+                            // verify there are values in kv state
                             if (accountInfoResponse['apps-local-state'][i][`key-value`] != undefined) {
                                 console.log("User's local state:");
+                                // up to 16 kv pairs loop through them
                                 for (let n = 0; n < accountInfoResponse['apps-local-state'][i][`key-value`].length; n++) {
                                     console.log(accountInfoResponse['apps-local-state'][i][`key-value`][n]);
+                                    //get both key and value
                                     let kv = accountInfoResponse['apps-local-state'][i][`key-value`]
+                                    // pull out key as it has the order number
                                     let ky = kv[n]['key'];
                                     console.log(window.atob(ky));
                                     let option = document.createElement('option');
+                                    // notice we are hiding the address here
+                                    // if not ui would not be readable
                                     option.value = add + "-" + window.atob(ky);
                                     option.text = window.atob(ky);
                                     ta.add(option);
@@ -598,6 +615,7 @@ return
             let fn = ta.options[ta.selectedIndex].value;
             let vls = ta.options[ta.selectedIndex].text
             vlsa = fn.split("-");
+            // rec contains the original order creators address
             let rec = vlsa[0];
             let n = vlsa[1];
             let d = vlsa[2];
@@ -663,6 +681,7 @@ return
                 body.classList.add("waiting");
                 let program = await buildDelegateTemplate();
                 let compilation = await compileProgram(algodClient, program);
+                //generate unique filename
                 let fn = await generateOrder();
                 let uintAr = _base64ToArrayBuffer(compilation.result);
                 let args = null;
@@ -688,7 +707,8 @@ return
                         console.log(error)
                     })
                 
-                // Call stateful teal application    
+                // Call stateful teal application 
+                // with two params "open" and unique order   
                 let appArgs = [];
                 var enc = new TextEncoder();
                 appArgs.push(enc.encode("open"));
