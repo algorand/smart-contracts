@@ -1,0 +1,27 @@
+{
+  "name": "algorand-dispenser-server-rest-api",
+  "version": "1.0.0",
+  "description": "Algorand Dispenser",
+  "main": "index.js",
+  "type": "module",
+  "repository": "algorand",
+  "scripts": {
+    "start": "nodemon src/index.js",
+    "test": "echo \"No test specified\" && exit 0"
+  },
+  "keywords": [],
+  "author": "eric@algorand.com",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.18.9"
+  },
+  "dependencies": {
+    "algosdk": "^1.8.1",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "node-fetch": "^2.6.1",
+    "process": "latest",
+    "uuid": "^3.4.0"
+  }
+}
