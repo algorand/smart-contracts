@@ -325,6 +325,10 @@ gtxn 2 TypeEnum
 int axfer
 ==
 &&
+txn Fee
+int 1000
+<=
+&&
 // The specific App ID must be called
 // This should be changed after creation
 // This links this contract to the stateful contract
