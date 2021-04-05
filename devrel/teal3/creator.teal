@@ -1,0 +1,38 @@
+#pragma version 3
+// save creator
+int 0
+txn ApplicationID
+==
+bz not_creation
+byte "Creator"
+txn Sender
+app_global_put
+// New For TEAL 3
+txn GlobalNumUint
+int 2
+==
+txn GlobalNumByteSlice
+int 1
+==
+&&
+txn LocalNumUint
+int 4
+==
+&&
+txn LocalNumByteSlice
+int 3
+==
+&&
+bz failed
+not_creation:
+// TEAL 3 Eliminates this need with
+// new Global
+txn Sender
+global CreatorAddress
+==
+bz failed
+int 1 
+return
+failed:
+int 0 
+return

@@ -1,0 +1,78 @@
+#pragma version 3
+int 0
+txn ApplicationID
+==
+bnz creation
+txna ApplicationArgs 0
+btoi
+// New For TEAL 3
+// Pops off the stack the value
+assert
+// TEAL 3 Swap Opcode
+// swaps last two values on stack
+byte "I am at the bottom"
+byte "I am at the top"
+swap
+pop
+pop
+byte "first"
+byte "second"
+byte "third"
+byte "fourth"
+dig 3
+pop
+pop
+pop
+pop
+pop
+// new TEAL 3 bit operators
+int 235 // target
+int 6 //bit to get
+getbit
+int 1
+==
+bz failed
+int 235
+int 6 //bit to  set
+int 0 //value to set it to
+setbit
+int 171
+==
+bz failed
+// TEAL 3 Byte opcodes
+byte "test the getbyte opcode"
+int 3 //get 4th byte
+getbyte
+int 116 //asci value of t
+==
+bz failed
+byte "john" // target
+int 2 // byte to set
+int 105 // value to set it to i
+setbyte
+byte "join"
+==
+bz failed
+
+// TEAL 3 Select Opcode
+int 1 // 0 value selection
+byte "this is a select test" // not equal to 0 selection
+int 1 // condition to check
+select // finishes with the byte string on the top of the stack
+pop
+
+// TEAL 3 min_balance opcode
+int 0 // sender
+balance
+int 0 // sender should be 200000 because of min balance and creation of app
+min_balance
+>=
+bz failed
+int 1
+return
+failed:
+int 0
+return
+creation:
+int 1
+return

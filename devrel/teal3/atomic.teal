@@ -1,0 +1,32 @@
+#pragma version 3
+int 0
+txn ApplicationID
+==
+bnz creation
+global GroupSize
+int 2
+==
+gtxn 0 TypeEnum
+int appl
+==
+&&
+gtxn 1 TypeEnum
+int pay
+==
+&&
+//teal version 2
+//gtxn 1 Amount
+//int 10000
+//>
+//TEAL Version 3 indirection
+txn GroupIndex
+int 1
++
+gtxns Amount //instead of gtxn 1 Amount
+int 1000
+>
+&&
+return
+creation:
+int 1
+return

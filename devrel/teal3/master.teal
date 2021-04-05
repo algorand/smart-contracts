@@ -1,0 +1,7 @@
+#pragma version 3
+// read global state
+byte "mastervalue"
+int 5000
+app_global_put
+int 1
+return

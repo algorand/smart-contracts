@@ -1,0 +1,37 @@
+#pragma version 3
+int 0
+txn ApplicationID
+==
+bnz creation
+// New To TEAL 3
+txn NumAssets
+int 1
+==
+bz failed
+// New To TEAL 3
+txn Assets 0
+int 1
+==
+bz failed
+// Assets array is used for getting config info
+int 0 //sender
+int 1 // assetid
+asset_holding_get AssetBalance
+bz failed
+int 1000 //does the sender have more than 1k of asset 1
+>
+bz failed
+int 0 //index into assets array
+asset_params_get AssetUnitName
+bz failed
+byte "tstAST"
+==
+bz failed
+int 1
+return
+failed:
+int 0
+return
+creation:
+int 1
+return
