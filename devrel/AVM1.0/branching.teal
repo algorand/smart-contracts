@@ -1,0 +1,23 @@
+#pragma version 3
+// read global state
+txn NumAppArgs
+int 2
+==
+bz fin
+byte "myarg"
+txn ApplicationArgs 0
+==
+bnz check_second_arg 
+int 0
+return
+check_second_arg:
+txn ApplicationArgs 1
+btoi //convert to int
+int 100
+>
+bnz fin
+int 0
+return
+fin:
+int 1
+return

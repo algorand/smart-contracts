@@ -1,0 +1,91 @@
+#pragma version 3
+txn ApplicationID
+int 0
+==
+bnz l19
+txn OnCompletion
+int OptIn
+==
+bnz l18
+txn OnCompletion
+int CloseOut
+==
+bnz l17
+txn OnCompletion
+int UpdateApplication
+==
+bnz l16
+txn OnCompletion
+int DeleteApplication
+==
+bnz l15
+txn OnCompletion
+int NoOp
+==
+bnz l7
+err
+l7:
+global GroupSize
+int 1
+==
+txna ApplicationArgs 0
+byte "Add"
+==
+&&
+bnz l13
+global GroupSize
+int 1
+==
+txna ApplicationArgs 0
+byte "Deduct"
+==
+&&
+bnz l10
+err
+l10:
+byte "Count"
+app_global_get
+store 0
+load 0
+int 0
+>
+bz l12
+byte "Count"
+load 0
+int 1
+-
+app_global_put
+l12:
+int 1
+return
+l13:
+byte "Count"
+app_global_get
+store 0
+byte "Count"
+load 0
+int 1
++
+app_global_put
+int 1
+return
+b l20
+l15:
+int 0
+return
+l16:
+int 0
+return
+l17:
+int 0
+return
+l18:
+int 0
+return
+l19:
+byte "Count"
+int 0
+app_global_put
+int 1
+return
+l20:

@@ -1,0 +1,217 @@
+#pragma version 5
+txn ApplicationID
+bz handle_createapp
+txn OnCompletion
+int NoOp
+==
+bnz handle_noop
+txn OnCompletion
+int OptIn
+==
+bnz handle_optin
+txn OnCompletion
+int CloseOut
+==
+bnz handle_closeout
+
+txn OnCompletion
+int UpdateApplication
+==
+bnz handle_updateapp
+
+txn OnCompletion
+int DeleteApplication
+==
+bnz handle_deleteapp
+// Unexpected OnCompletion value. Should be unreachable.
+err
+
+handle_createapp:
+int 1
+return
+
+handle_optin:
+global GroupSize
+int 1
+==
+bz handle_noop
+int 1
+return
+
+
+handle_noop:
+txn ApplicationArgs 0
+byte "create"
+==
+bz not_create
+//demonstrate asset create
+itxn_begin
+int acfg
+itxn_field TypeEnum
+int 1000000
+itxn_field ConfigAssetTotal
+int 3
+itxn_field ConfigAssetDecimals
+byte "oz"
+itxn_field ConfigAssetUnitName
+byte "Gold"
+itxn_field ConfigAssetName
+byte "https://gold.rush/"
+itxn_field ConfigAssetURL
+global CurrentApplicationAddress
+dup
+dup2
+itxn_field ConfigAssetManager
+itxn_field ConfigAssetReserve
+itxn_field ConfigAssetFreeze
+itxn_field ConfigAssetClawback
+itxn_submit
+byte "g_assetid"
+itxn CreatedAssetID
+app_global_put
+int 1 
+return
+
+not_create:
+// all methods below this require the asset be created
+int 0
+byte "g_assetid"
+app_global_get_ex
+bz bad
+pop
+
+
+txn ApplicationArgs 0
+byte "config"
+==
+bz not_config
+//demonstrate asset config change freeze account
+itxn_begin
+int acfg
+itxn_field TypeEnum
+txn Sender
+itxn_field ConfigAssetFreeze
+global CurrentApplicationAddress
+dup
+dup
+itxn_field ConfigAssetManager
+itxn_field ConfigAssetReserve
+itxn_field ConfigAssetClawback
+//first asset in the assets array
+txn Assets 0
+itxn_field ConfigAsset
+itxn_submit
+int 1 
+return
+
+
+
+not_config:
+txn ApplicationArgs 0
+byte "delete"
+==
+bz not_delete
+//demonstrate deleting asset
+itxn_begin
+int acfg
+itxn_field TypeEnum
+txn Assets 0
+itxn_field ConfigAsset
+itxn_submit
+byte "g_assetid"
+app_global_del
+int 1 
+return
+
+not_delete:
+txn ApplicationArgs 0
+byte "getasset"
+==
+bz not_get
+// demonstrate asset transfer
+itxn_begin
+int axfer
+itxn_field TypeEnum
+txn Sender
+itxn_field AssetReceiver
+//Setting sender is useful if another account is rekeyed to the app
+//global CurrentApplicationAddress
+//itxn_field Sender
+//Asset ID must be in the assets array
+txn Assets 0
+itxn_field XferAsset
+// send 10
+int 1000
+itxn_field AssetAmount
+itxn_submit
+int 1
+return
+
+not_get:
+txn ApplicationArgs 0
+byte "freeze"
+==
+bz not_freeze
+//demonstrate freeze transaction
+itxn_begin
+int afrz
+itxn_field TypeEnum
+//asset to be frozen
+txn Assets 0
+itxn_field FreezeAsset
+//account to freeze
+//first account in accounts array
+txn Accounts 1
+itxn_field FreezeAssetAccount
+//set frozen status to true
+int 1
+itxn_field FreezeAssetFrozen
+itxn_submit
+int 1
+return
+
+not_freeze:
+txn ApplicationArgs 0
+byte "clawback"
+==
+bz not_claw
+// demonstrate asset clawback
+itxn_begin
+int axfer
+itxn_field TypeEnum
+global CurrentApplicationAddress
+itxn_field AssetReceiver
+txn Assets 0
+itxn_field XferAsset
+// send 10
+int 1000
+itxn_field AssetAmount
+//first account in the accounts array
+txn Accounts 1
+itxn_field AssetSender
+itxn_submit
+int 1
+return
+
+
+not_claw:
+int 0
+return
+not_withdraw:
+// Unknown call "method"
+err
+
+handle_closeout:
+int 1
+return
+
+handle_updateapp:
+handle_deleteapp:
+txn Sender
+global CreatorAddress
+==
+return
+
+
+bad:
+err
