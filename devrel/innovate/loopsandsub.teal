@@ -1,0 +1,49 @@
+#pragma version 5
+// Simple teal to calculate 5!
+txn ApplicationID
+bz creation
+// check application args length
+txn ApplicationArgs 0
+btoi
+dup
+store 0 // store count
+
+// initialize total
+store 1
+//jump to main
+b main
+
+cal_mul:
+load 0
+int 1
+-
+load 1
+*
+store 1
+load 0
+int 1
+-
+store 0
+retsub
+
+main:
+int 0 // initialize loop
+loop:
+// store global value
+callsub cal_mul
+int 1
++ // increment by 1
+dup
+txn ApplicationArgs 0
+btoi // it must be an integer
+int 1
+-
+< // loop until the integer value of the first app argument -1
+bnz loop
+load 1
+itob
+log // up to 32 logs of a total of 1kb
+return
+creation:
+int 1
+return

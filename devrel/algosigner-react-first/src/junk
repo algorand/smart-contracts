@@ -1,0 +1,73 @@
+const AccountsDropdown = () => {
+  const [options, setResult] = useState("");
+
+  const onClick = useCallback(async () => {
+    await AlgoSigner.connect({
+      ledger: 'TestNet'
+    });
+    const accts = await AlgoSigner.accounts({
+      ledger: 'TestNet'
+    });
+    var result = [];
+
+    for(let i in accts )
+      result.push([i, accts[i]['address']]);
+    setResult(result);
+  }, []);
+
+  return (
+    <>
+    return (
+      <Dropdown
+        onClick={this.onClick}
+        selection
+        options={this.state.options}
+      />
+    )
+    </>
+  );
+};
+
+
+class AccountsDropdown extends React.Component {
+
+  componentWillMount() {
+    this.setState({
+      options: [
+        {value:'1', text:'A'},
+        {value:'2', text:'B'},
+        {value:'3', text:'C'},
+      ],
+      selected: ['1', '2'], // <== Here, the values of selected options
+    });
+  }
+
+
+
+  onChange = (e, data) => {
+    console.log("test" + data.value);
+    this.setState({ selected: data.value });
+  }
+
+  render() {
+    const { selected } = this.state;
+    return (
+      <div>
+        <Dropdown
+          button
+          className='icon'
+          fluid
+          labeled
+          icon='world'
+          options={options}
+          search
+          value={selected}
+          onChange={this.onChange}
+        />
+      </div>
+    );
+  }
+}
+
+
+
