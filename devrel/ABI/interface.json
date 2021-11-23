@@ -1,9 +1,0 @@
-{
-    "name":"interface",
-    "methods":[
-        {
-            "name":"add",
-            "args":[{"type":"uint32"},{"type":"uint32"}],
-            "returns":{"type":"uint32"}
-        }]
-}
