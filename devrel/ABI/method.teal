@@ -1,0 +1,2 @@
+#pragma version 5
+method "add(uint64,uint64)uint64"

@@ -1,0 +1,60 @@
+{
+    "name":"demo-abi",
+    "appId": 1,
+    "methods":[
+        {
+            "name":"add",
+            "description":"Add 2 integers",
+            "args":[ { "type":"uint64" }, { "type":"uint64" } ],
+            "returns": {"type":"uint64"}
+        },
+        {
+            "name":"sub",
+            "description":"Subtract 2 integers",
+            "args":[ { "type":"uint64" }, { "type":"uint64" } ],
+            "returns": {"type":"uint64"}
+        },
+        {
+            "name":"mul",
+            "description":"Multiply 2 integers",
+            "args":[ { "type":"uint64" }, { "type":"uint64" } ],
+            "returns": {"type":"uint64"}
+        },
+        {
+            "name":"div",
+            "description":"Divide 2 integers, throw away the remainder",
+            "args":[ { "type":"uint64" }, { "type":"uint64" } ],
+            "returns": {"type":"uint64"}
+        },
+        {
+            "name":"qrem",
+            "description":"Divide 2 integers, return both the quotient and remainder",
+            "args":[ { "type":"uint64" }, { "type":"uint64" } ],
+            "returns": {"type":"(uint64,uint64)"}
+        },
+        {
+            "name":"reverse",
+            "description":"Reverses a string",
+            "args":[ { "type":"string" } ],
+            "returns": {"type":"string"}
+        },
+        {
+            "name":"txntest",
+            "description":"just check it",
+            "args":[{"type":"uint64"}, {"type": "pay"}, {"type":"uint64"}],
+            "returns":{"type": "uint64"}
+        },
+        {
+            "name":"_optIn",
+            "description":"just opt in",
+            "args":[{"type":"uint64"}],
+            "returns":{"type": "uint64"}
+        },
+        {
+            "name":"_closeOut",
+            "description":"just close out",
+            "args":[{"type":"uint64"}],
+            "returns":{"type": "uint64"}
+        }
+    ]
+}

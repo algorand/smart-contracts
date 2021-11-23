@@ -1,0 +1,24 @@
+#pragma version 5
+txn ApplicationID
+bz handle_createapp
+
+method "add(uint64,uint64)uint64"
+txna ApplicationArgs 0
+==
+assert
+txna ApplicationArgs 1
+btoi
+txna ApplicationArgs 2
+btoi
++
+store 0 //store result
+byte 0x151f7c75 //return bytes
+load 0 //containing return integer
+itob
+concat
+log
+int 1
+return
+handle_createapp:
+int 1
+return

@@ -1,0 +1,17 @@
+{
+    "name":"contract",
+    "appId":123,
+    "methods":  [{"name":"add",
+                "args":[{"type":"uint32"},{"type":"uint32"}],
+                "returns":{"type":"uint32"}},
+                {"name":"long",
+                    "args":[{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"}],
+                    "returns":{"type":"uint32"}},
+                    {
+                        "name":"txntest",
+                        "description":"just check it",
+                        "args":[{"type":"uint64"}, {"type": "pay"}, {"type":"uint64"}],
+                        "returns":{"type": "uint64"}
+                    }    
+                ]
+}

@@ -1,0 +1,8 @@
+{
+    "name":"contract",
+    "appId":123,
+    "methods":  [{"name":"add",
+                "args":[{"type":"uint32"},{"type":"uint32"}],
+                "returns":{"type":"uint32"}}
+                ]
+}

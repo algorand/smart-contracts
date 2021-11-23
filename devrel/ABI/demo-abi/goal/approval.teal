@@ -1,0 +1,245 @@
+#pragma version 5
+intcblock 1 0 2
+bytecblock 0x151f7c75
+txn ApplicationID
+intc_1 // 0
+==
+bnz main_l26
+txn OnCompletion
+pushint 5 // DeleteApplication
+==
+bnz main_l25
+txn OnCompletion
+pushint 4 // UpdateApplication
+==
+bnz main_l24
+txn OnCompletion
+intc_2 // CloseOut
+==
+bnz main_l23
+txn OnCompletion
+intc_0 // OptIn
+==
+bnz main_l22
+txn OnCompletion
+intc_1 // NoOp
+==
+bnz main_l7
+err
+main_l7:
+txna ApplicationArgs 0
+pushbytes 0xfe6bdf69 // 0xfe6bdf69
+==
+bnz main_l21
+txna ApplicationArgs 0
+pushbytes 0x78b488b7 // 0x78b488b7
+==
+bnz main_l20
+txna ApplicationArgs 0
+pushbytes 0xe2f188c5 // 0xe2f188c5
+==
+bnz main_l19
+txna ApplicationArgs 0
+pushbytes 0x16e80f08 // 0x16e80f08
+==
+bnz main_l18
+txna ApplicationArgs 0
+pushbytes 0xf20b6567 // 0xf20b6567
+==
+bnz main_l17
+txna ApplicationArgs 0
+pushbytes 0xe54892f0 // 0xe54892f0
+==
+bnz main_l16
+txna ApplicationArgs 0
+pushbytes 0x5084cec4 // 0x5084cec4
+==
+bnz main_l15
+err
+main_l15:
+txn GroupIndex
+intc_0 // 1
+-
+gtxns Amount
+txna ApplicationArgs 1
+btoi
+==
+txn GroupIndex
+intc_0 // 1
+-
+gtxns Fee
+txna ApplicationArgs 2
+btoi
+==
+&&
+callsub sub1
+return
+main_l16:
+txna ApplicationArgs 1
+callsub sub8
+callsub sub0
+return
+main_l17:
+txna ApplicationArgs 1
+btoi
+txna ApplicationArgs 2
+btoi
+callsub sub7
+callsub sub0
+return
+main_l18:
+txna ApplicationArgs 1
+btoi
+txna ApplicationArgs 2
+btoi
+callsub sub5
+callsub sub1
+return
+main_l19:
+txna ApplicationArgs 1
+btoi
+txna ApplicationArgs 2
+btoi
+callsub sub4
+callsub sub1
+return
+main_l20:
+txna ApplicationArgs 1
+btoi
+txna ApplicationArgs 2
+btoi
+callsub sub3
+callsub sub1
+return
+main_l21:
+txna ApplicationArgs 1
+btoi
+txna ApplicationArgs 2
+btoi
+callsub sub2
+callsub sub1
+return
+main_l22:
+intc_0 // 1
+return
+main_l23:
+intc_0 // 1
+return
+main_l24:
+txn Sender
+global CreatorAddress
+==
+return
+main_l25:
+txn Sender
+global CreatorAddress
+==
+return
+main_l26:
+intc_0 // 1
+return
+sub0: // wrap_return_bytes
+store 0
+bytec_0 // 0x151f7c75
+load 0
+concat
+log
+intc_0 // 1
+retsub
+sub1: // wrap_return_int
+store 1
+bytec_0 // 0x151f7c75
+load 1
+itob
+concat
+log
+intc_0 // 1
+retsub
+sub2: // add
+store 3
+store 2
+load 2
+load 3
++
+retsub
+sub3: // sub
+store 5
+store 4
+load 4
+load 5
+-
+retsub
+sub4: // mul
+store 7
+store 6
+load 6
+load 7
+*
+retsub
+sub5: // div
+store 9
+store 8
+load 8
+load 9
+/
+retsub
+sub6: // mod
+store 13
+store 12
+load 12
+load 13
+%
+retsub
+sub7: // qrem
+store 11
+store 10
+load 10
+load 11
+callsub sub5
+itob
+load 10
+load 11
+callsub sub6
+itob
+concat
+retsub
+sub8: // reverse
+store 14
+pushbytes 0x // ""
+store 16
+load 14
+intc_1 // 0
+extract_uint16
+intc_0 // 1
++
+store 15
+sub8_l1:
+load 15
+intc_2 // 2
+>=
+bz sub8_l3
+load 16
+load 14
+load 15
+intc_0 // 1
+extract3
+concat
+store 16
+load 15
+intc_0 // 1
+-
+store 15
+b sub8_l1
+sub8_l3:
+load 16
+callsub sub9
+retsub
+sub9: // prepend_length
+store 17
+load 17
+len
+itob
+extract 6 2
+load 17
+concat
+retsub
